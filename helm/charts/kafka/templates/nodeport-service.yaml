@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: List
+items:
+{{- $namespace := .Values.namespace }}
+{{- $labels := include "ms-cp-kafka.labels" .}}
+{{- $selectors := include "ms-cp-kafka.selectorLabels" .}}
+{{- $fullname := include "ms-cp-kafka.fullname" .}}
+{{- $name := .Values.nodePort.name }}
+{{- $portName := .Values.nodePort.portName }}
+{{- $port := .Values.nodePort.port }}
+{{- $type := .Values.nodePort.type }}
+{{- $externalTrafficPolicy := .Values.nodePort.externalTrafficPolicy }}
+{{- $externalIP := .Values.nodePort.externalIP }}
+
+{{- range $i := until (int .Values.replicaCount)}}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: {{ $name }}-{{ $i }}
+    namespace: {{ $namespace }}
+    labels:
+      {{- $labels | nindent 6 }}
+  spec:
+    selector:
+      {{- $selectors | nindent 6 }}      
+      statefulset.kubernetes.io/pod-name: {{ $fullname }}-{{ $i }}
+    ports:
+    - name: {{ $portName }}
+      port: {{ $port }}
+      targetPort: {{ $port }}
+    type: {{ $type }}
+    externalTrafficPolicy: {{ $externalTrafficPolicy }}
+    externalIPs:
+    - {{ $externalIP }}
+{{- end }}

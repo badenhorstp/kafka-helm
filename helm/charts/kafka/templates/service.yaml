@@ -1,0 +1,15 @@
+---
+# Source: ms-cp-kafka/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ms-cp-kafka.serviceName" .}}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "ms-cp-kafka.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: {{ .Values.service.port }}
+      name: {{ .Values.service.name }}
+  selector:
+    {{- include "ms-cp-kafka.selectorLabels" . | nindent 4}}

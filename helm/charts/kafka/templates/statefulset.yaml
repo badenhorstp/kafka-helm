@@ -38,9 +38,9 @@ spec:
           {{- $cnt := (int .Values.replicaCount) -}}
           {{- $port := dict -}}
           {{- range .Values.headless -}}
-          {{- if eq .name "kafka-broker" -}}
-          {{- $port = .port -}}
-          {{- end}}
+            {{- if eq .name "kafka-controller" -}}
+              {{- $port = .port -}}
+            {{- end}}
           {{- end}}
           env:          
           - name: KAFKA_CONTROLLER_QUORUM_VOTERS

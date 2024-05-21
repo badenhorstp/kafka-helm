@@ -122,3 +122,56 @@ Source: Conversation with Bing, 17/05/2024
 (2) Feature Gates | Kubernetes. https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/.
 (3) Feature Gates — How to enable Kubernetes Alpha features. https://faun.pub/feature-gates-how-to-enable-kubernetes-alpha-features-fdb38dc3a9aa.
 (4) undefined. https://kubernetes.io/docs/setup/production-environment/container-runtimes/.
+
+## Copilot - Ingress
+Certainly! Below is a basic YAML configuration for an Ingress resource that routes traffic to a web application pod running inside a Minikube cluster. Please ensure that you have the Ingress controller enabled in Minikube.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: web-app.minikube.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-app-service
+            port:
+              number: 80
+```
+
+This YAML file defines an Ingress resource named `web-app-ingress`. It assumes that you have a service named `web-app-service` which routes to your web application pod, and that this service is listening on port 80.
+
+Remember to add an entry to your `/etc/hosts` file for `web-app.minikube.local` to point to the Minikube IP, which you can get by running `minikube ip`.
+
+Please replace `web-app-service` and `web-app.minikube.local` with the actual name of your service and the desired host. Adjust the `path` and `port` as necessary for your application.
+
+To enable the NGINX Ingress controller in Minikube, you can use the following command:
+
+```shell
+minikube addons enable ingress
+```
+
+After running this command, you can verify that the NGINX Ingress controller is running by executing:
+
+```shell
+kubectl get pods -n ingress-nginx
+```
+
+This will list the Ingress controller pods, which should be in the `Running` state¹.
+
+Source: Conversation with Copilot, 21/05/2024
+(1) Set up Ingress on Minikube with the NGINX Ingress Controller. https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/.
+(2) Mastering Kubernetes Ingress: A Simple Guide to Learn and ... - Medium. https://medium.com/@salikehassan93/mastering-kubernetes-ingress-a-simple-guide-to-learn-and-practice-ingress-using-minikube-7194851e8bf2.
+(3) Kubernetes Ingress using Minikube: A practical implementation. https://iampriyanshuverma.medium.com/kubernetes-ingress-using-minikube-4fa1f404f211.
+(4) How to Setup Ingress on Minikube Kubernetes with example - Geeks Terminal. https://geeksterminal.com/setup-ingress-on-minikube-for-kubernetes/2972/.
+(5) undefined. https://x.com/salikehassan26%29.
+(6) undefined. https://docs.docker.com/desktop.
+(7) undefined. https://minikube.sigs.k8s.io/docs/start/.

@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "ms-cp-kafka.name" -}}
+{{- define "kafka-controller.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "ms-cp-kafka.fullname" -}}
+{{- define "kafka-controller.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "ms-cp-kafka.chart" -}}
+{{- define "kafka-controller.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "ms-cp-kafka.labels" -}}
-helm.sh/chart: {{ include "ms-cp-kafka.chart" . }}
-{{ include "ms-cp-kafka.selectorLabels" . }}
+{{- define "kafka-controller.labels" -}}
+helm.sh/chart: {{ include "kafka-controller.chart" . }}
+{{ include "kafka-controller.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,18 +45,18 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "ms-cp-kafka.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "ms-cp-kafka.name" . }}
+{{- define "kafka-controller.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "kafka-controller.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: {{ include "ms-cp-kafka.name" . }}
+app: {{ include "kafka-controller.name" . }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "ms-cp-kafka.serviceAccountName" -}}
+{{- define "kafka-controller.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "ms-cp-kafka.fullname" .) .Values.serviceAccount.name }}-serviceaccount
+{{- default (include "kafka-controller.fullname" .) .Values.serviceAccount.name }}-serviceaccount
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -65,20 +65,20 @@ Create the name of the service account to use
 {{/*
 Create the name of the service to use
 */}}
-{{- define "ms-cp-kafka.serviceName" -}}
-{{ include "ms-cp-kafka.fullname" . }}-service
+{{- define "kafka-controller.serviceName" -}}
+{{ include "kafka-controller.fullname" . }}-service
 {{- end }}
 
 {{/*
 Define name for configMap
 */}}
-{{- define "ms-cp-kafka.configMapName" -}}
-{{ include "ms-cp-kafka.fullname" . }}-configmap
+{{- define "kafka-controller.configMapName" -}}
+{{ include "kafka-controller.fullname" . }}-configmap
 {{- end }}
 
 {{/*
 Define name for headless service
 */}}
-{{- define "ms-cp-kafka.headlessServiceName" -}}
-{{ include "ms-cp-kafka.fullname" . }}-headless
+{{- define "kafka-controller.headlessServiceName" -}}
+{{ include "kafka-controller.fullname" . }}-headless
 {{- end }}

@@ -1,0 +1,15 @@
+---
+# Source: kafka-broker/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kafka-broker.serviceName" .}}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "kafka-broker.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: {{ .Values.service.port }}
+      name: {{ .Values.service.name }}
+  selector:
+    {{- include "kafka-broker.selectorLabels" . | nindent 4}}

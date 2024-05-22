@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "ms-cp-kafka.fullname" .}}
+  name: {{ include "kafka-controller.fullname" .}}
   namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
-    {{- include "ms-cp-kafka.labels" . | nindent 4 }}
+    {{- include "kafka-controller.labels" . | nindent 4 }}
 spec:
-  serviceName: {{ include "ms-cp-kafka.headlessServiceName" . }}
+  serviceName: {{ include "kafka-controller.headlessServiceName" . }}
   replicas: {{ default 3 .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "ms-cp-kafka.selectorLabels" . | nindent 6 }}
+      {{- include "kafka-controller.selectorLabels" . | nindent 6 }}
   template:
       metadata:
         labels:
-          {{- include "ms-cp-kafka.selectorLabels" . | nindent 10 }}
+          {{- include "kafka-controller.selectorLabels" . | nindent 10 }}
       spec:
-        serviceAccountName: {{ include "ms-cp-kafka.serviceAccountName" . }}
+        serviceAccountName: {{ include "kafka-controller.serviceAccountName" . }}
         {{- if .Values.podSecurityContext }}
         securityContext: 
         {{- toYaml .Values.podSecurityContext | nindent 10 }}
         {{- end}}
         containers:
-        - name: {{ include "ms-cp-kafka.name" . }}-broker
+        - name: {{ include "kafka-controller.name" . }}-broker
           image: {{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- if .Values.securityContext }}
@@ -32,11 +32,11 @@ spec:
           ports:
           - containerPort: {{ .Values.service.port }}
             name: {{ .Values.service.name }}
-          {{- $headlessName := include "ms-cp-kafka.headlessServiceName" . -}}
-          {{- $fullname := include "ms-cp-kafka.fullname" . -}}
+          {{- $headlessName := include "kafka-controller.headlessServiceName" . -}}
+          {{- $fullname := include "kafka-controller.fullname" . -}}
           {{- $namespace := .Values.namespace -}}
           {{- $cnt := (int .Values.replicaCount) -}}
-          {{- $port := dict -}}
+          {{- $port := 0 -}}
           {{- range .Values.headless -}}
             {{- if eq .name "kafka-controller" -}}
               {{- $port = .port -}}
@@ -55,7 +55,7 @@ spec:
           {{- end}}
           envFrom:
           - configMapRef:
-              name: {{ include "ms-cp-kafka.configMapName" . }}
+              name: {{ include "kafka-controller.configMapName" . }}
           {{- if .Values.command }}
           command:          
             {{- toYaml .Values.command | nindent 10}}

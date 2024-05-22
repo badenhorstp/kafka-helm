@@ -1,17 +1,18 @@
-# Default values for ms-cp-kafka.
+# Default values for kafka-broker.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 2
+controllerCount: 1
 namespace: kafka-new
 
 environment:
   # KAFKA_NODE_ID: 1 - Should be allocated to the statefulset sequence number
-  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
   # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-kraft:29092,PLAINTEXT_HOST://localhost:9092 - Should be dynamically allocated a script
   # KAFKA_JMX_PORT: 9101 - Will apply later
   # KAFKA_JMX_HOSTNAME: localhost - Will apply later
-  KAFKA_PROCESS_ROLES: broker,controller
+  KAFKA_PROCESS_ROLES: broker
   KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "2"
   # KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-kraft:29093 - Should be dynamically allocated with a script
   # KAFKA_LISTENERS: PLAINTEXT://kafka-kraft:29092,CONTROLLER://kafka-kraft:29093,PLAINTEXT_HOST://0.0.0.0:9092 - Should be dynamically allocated with script
@@ -39,7 +40,7 @@ refEnvironment:
 image:
   repository: registry.local.org
   name: cp-kafka
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "7.6.1"
 
@@ -47,10 +48,9 @@ command:
 - sh
 - -exc
 - |
-  export KAFKA_NODE_ID=${HOSTNAME##*-} && \
-  export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${POD_NAME}.ms-cp-kafka-headless.${POD_NAMESPACE}:19092,EXTERNAL://${HOST_IP}:$((30090 + ${KAFKA_NODE_ID}))
-  export KAFKA_CONTROLLER_QUORUM_VOTERS=0@ms-cp-kafka-0.ms-cp-kafka-headless.${POD_NAMESPACE}:19093,1@ms-cp-kafka-1.ms-cp-kafka-headless.${POD_NAMESPACE}:19093
-  export KAFKA_LISTENERS=PLAINTEXT://${POD_NAME}.ms-cp-kafka-headless.${POD_NAMESPACE}:19092,CONTROLLER://${POD_NAME}.ms-cp-kafka-headless.${POD_NAMESPACE}:19093,EXTERNAL://0.0.0.0:$((30090 + ${KAFKA_NODE_ID}))
+  export KAFKA_NODE_ID=$((${HOSTNAME##*-}+3)) && \
+  export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${POD_NAME}.kafka-broker-headless.${POD_NAMESPACE}:19092,EXTERNAL://${HOST_IP}:$((30090 + ${KAFKA_NODE_ID}))
+  export KAFKA_LISTENERS=PLAINTEXT://${POD_NAME}.kafka-broker-headless.${POD_NAMESPACE}:19092,EXTERNAL://0.0.0.0:$((30090 + ${KAFKA_NODE_ID}))
   /etc/confluent/docker/run
 
 imagePullSecrets:
@@ -101,7 +101,7 @@ headless:
 nodePort:
     name: kafka-nodeport-service
     portName: kafka-broker
-    port: 30090
+    port: 30093
     type: LoadBalancer
     externalTrafficPolicy: Local
     externalIP: 192.168.39.157
@@ -173,7 +173,7 @@ volumeClaimTemplates:
         storage: 25Gi
     selector:
       matchLabels:
-        type: kafka-pv
+        type: kafka-broker-pv
     storageClassName: local-storage
       
 

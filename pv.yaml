@@ -4,9 +4,9 @@ items:
 - apiVersion: v1
   kind: PersistentVolume
   metadata:
-    name: kafka-pv0
+    name: kafka-broker-pv0
     labels:
-      type: kafka-pv
+      type: kafka-broker-pv
   spec:
     capacity:
       storage: 25Gi
@@ -15,7 +15,7 @@ items:
     persistentVolumeReclaimPolicy: Retain
     storageClassName: local-storage
     local:
-      path: /data/kafka-new-0
+      path: /data/kafka-761/broker-0
     nodeAffinity:
       required:
        nodeSelectorTerms:
@@ -27,9 +27,9 @@ items:
 - apiVersion: v1
   kind: PersistentVolume
   metadata:
-    name: kafka-pv1
+    name: kafka-broker-pv1
     labels:
-      type: kafka-pv
+      type: kafka-broker-pv
   spec:
     capacity:
       storage: 25Gi
@@ -38,7 +38,7 @@ items:
     persistentVolumeReclaimPolicy: Retain
     storageClassName: local-storage
     local:
-      path: /data/kafka-new-1
+      path: /data/kafka-761/broker-1
     nodeAffinity:
       required:
        nodeSelectorTerms:
@@ -50,9 +50,9 @@ items:
 - apiVersion: v1
   kind: PersistentVolume
   metadata:
-    name: kafka-pv2
+    name: kafka-broker-pv2
     labels:
-      type: kafka-pv
+      type: kafka-broker-pv
   spec:
     capacity:
       storage: 25Gi
@@ -61,7 +61,76 @@ items:
     persistentVolumeReclaimPolicy: Retain
     storageClassName: local-storage
     local:
-      path: /data/kafka-new-2
+      path: /data/kafka-761/broker-2
+    nodeAffinity:
+      required:
+       nodeSelectorTerms:
+         - matchExpressions:
+             - key: kubernetes.io/hostname
+               operator: In
+               values:
+               - primary
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: kafka-controller-pv0
+    labels:
+      type: kafka-controller-pv
+  spec:
+    capacity:
+      storage: 25Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: local-storage
+    local:
+      path: /data/kafka-761/controller-0
+    nodeAffinity:
+      required:
+       nodeSelectorTerms:
+         - matchExpressions:
+             - key: kubernetes.io/hostname
+               operator: In
+               values:
+               - primary
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: kafka-controller-pv1
+    labels:
+      type: kafka-controller-pv
+  spec:
+    capacity:
+      storage: 25Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: local-storage
+    local:
+      path: /data/kafka-761/controller-1
+    nodeAffinity:
+      required:
+       nodeSelectorTerms:
+         - matchExpressions:
+             - key: kubernetes.io/hostname
+               operator: In
+               values:
+               - primary
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: kafka-controller-pv2
+    labels:
+      type: kafka-controller-pv
+  spec:
+    capacity:
+      storage: 25Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: local-storage
+    local:
+      path: /data/kafka-761/controller-2
     nodeAffinity:
       required:
        nodeSelectorTerms:

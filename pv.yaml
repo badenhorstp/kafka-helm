@@ -139,3 +139,37 @@ items:
                operator: In
                values:
                - primary
+- apiVersion: v1
+  kind: PersistentVolume
+  metadata:
+    name: kafka-connect-pv
+    labels:
+      type: kafka-connect-pv
+  spec:
+    capacity:
+      storage: 3Gi
+    accessModes:
+      - ReadWriteOnce
+    persistentVolumeReclaimPolicy: Retain
+    storageClassName: local-storage
+    local:
+      path: /data/kafka-761/connect
+    nodeAffinity:
+      required:
+       nodeSelectorTerms:
+         - matchExpressions:
+             - key: kubernetes.io/hostname
+               operator: In
+               values:
+               - primary
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: kafka-connect-pvc
+  spec:
+    storageClassName: local-storage
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 3Gi

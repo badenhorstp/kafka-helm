@@ -1,53 +1,37 @@
-# Default values for kafka-broker.
+# Default values for kafka-connect.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 2
-controllerCount: 1
+replicaCount: 1
 namespace: kafka-new
 
 environment:
-  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
-  # KAFKA_JMX_PORT: 9101 - Will apply later
-  # KAFKA_JMX_HOSTNAME: localhost - Will apply later
-  KAFKA_PROCESS_ROLES: broker
-  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "2"
-  KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-  KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-  CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-  KAFKA_HEAP_OPTIONS: -Xms1024M -Xmx1024M
-  KAFKA_LOG_DIRS: /opt/kafka/data/logs
-  KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
-  KAFKA_DEFAULT_REPLICATION_FACTOR: "2"
-  KAFKA_LOG_RETENTION_HOURS: "2"
-  # KAFKA_LOG_RETENTION_MINUTES: 20
-  KAFKA_CLEANUP_POLICY: delete
-  KAFKA_MESSAGE_MAX_BYTES: "10485760"
-  KAFKA_REPLICA_FETCH_MAX_BYTES: "10485760"
-  KAFKA_MIN_INSYNC_REPLICAS: "2"
-  KAFKA_NUM_PARTITIONS: "4"
+  CONNECT_GROUP_ID: kafka-connect
+  CONNECT_REST_PORT: 8083
+  CONNECT_BOOTSTRAP_SERVERS: kafka-broker-headless:19092
+  CONNECT_CONFIG_STORAGE_TOPIC: kafka-connect-config
+  CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "2"
+  CONNECT_OFFSET_STORAGE_TOPIC: kafka-connect-offset
+  CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "2"
+  CONNECT_STATUS_STORAGE_TOPIC: kafka-connect-status
+  CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "2"
+  CONNECT_PLUGIN_PATH: /opt/kafka/plugins
+  CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+  CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+  CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+  CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+  CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+  KAFKA_HEAP_OPTS: -Xms1024M -Xmx1024M
+  KAFKA_JMX_PORT: "5555"
 
 refEnvironment:
-  HOST_IP: status.hostIP
-  POD_NAME: metadata.name
-  POD_NAMESPACE: metadata.namespace
-#  POD_INDEX: app.kubernetes.io/pod-index -- Need to enable feature gate - PodIndexLabel
+  CONNECT_REST_ADVERTISED_HOST_NAME: status.podIP
 
 image:
-  repository: registry.local.org
-  name: cp-kafka
+  repository: registry.local.org/cp-kafka-connect
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "7.6.1"
-
-command:
-- sh
-- -exc
-- |
-  export KAFKA_NODE_ID=$((${HOSTNAME##*-}+3)) && \
-  export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${POD_NAME}.kafka-broker-headless.${POD_NAMESPACE}:19092,EXTERNAL://${HOST_IP}:$((30090 + ${KAFKA_NODE_ID}))
-  export KAFKA_LISTENERS=PLAINTEXT://${POD_NAME}.kafka-broker-headless.${POD_NAMESPACE}:19092,EXTERNAL://0.0.0.0:$((30090 + ${KAFKA_NODE_ID}))
-  /etc/confluent/docker/run
 
 imagePullSecrets:
   - name: registry-local-org
@@ -83,24 +67,11 @@ securityContext:
   runAsUser: 1000
   runAsGroup: 1000
 
+
 service:
-  name: kafka-broker
+  name: kafka-connect
   type: ClusterIP
-  port: 19092
-
-headless:
-  - name: kafka-broker
-    port: 19092
-  - name: kafka-controller
-    port: 19093
-
-nodePort:
-    name: kafka-nodeport-service
-    portName: kafka-broker
-    port: 30093
-    type: LoadBalancer
-    externalTrafficPolicy: Local
-    externalIP: 192.168.39.157
+  port: 8083
 
 ingress:
   enabled: false
@@ -147,31 +118,19 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+volumes: 
+- name: plugins
+  persistentVolumeClaim:
+    claimName: kafka-connect-pvc
+  # secret:
+  #   secretName: mysecret
+  #   optional: false
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
-  - name: datadir
-    mountPath: /opt/kafka/data
+- name: plugins
+  mountPath: /opt/kafka/plugins
 #   readOnly: true
-
-volumeClaimTemplates:
-- metadata:
-    name: datadir
-  spec:
-    accessModes: ["ReadWriteOnce"]
-    resources:
-      requests:
-        storage: 25Gi
-    selector:
-      matchLabels:
-        type: kafka-broker-pv
-    storageClassName: local-storage
-      
 
 nodeSelector: {}
 

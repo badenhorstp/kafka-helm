@@ -303,3 +303,42 @@ Source: Conversation with Bing, 22/05/2024
 (3) Using Node Authorization | Kubernetes. https://kubernetes.io/docs/reference/access-authn-authz/node/.
 (4) proxy - user permissions needed for token access to kubernetes .... https://stackoverflow.com/questions/47777373/user-permissions-needed-for-token-access-to-kubernetes-dashboard-with-rbac.
 (5) Accessing Kubernetes api via Bearer Token Authorization. https://stackoverflow.com/questions/61801522/accessing-kubernetes-api-via-bearer-token-authorization.
+
+## Copilot - Watch k8s events
+The 'watch' action in Kubernetes is a type of API operation that allows you to subscribe to changes in the cluster's resources. When you perform a watch operation, the Kubernetes API server will keep the connection open and stream updates to you in real-time as they occur. This is particularly useful for applications that need to react to changes in the cluster, such as updating configurations or responding to state changes.
+
+Here's a more detailed explanation:
+
+- **Real-Time Updates**: Instead of polling the API server for changes, the watch mechanism pushes updates to the client as soon as they happen, which is more efficient and timely.
+- **Resource Versioning**: Kubernetes resources have a `resourceVersion` field that gets updated every time there's a change. The watch operation leverages this to provide consistent updates.
+- **Selective Watching**: You can watch a specific resource or a collection of resources, and you can also filter the watch to only receive updates about certain kinds of changes.
+
+To use the watch action via `kubectl`, you can append the `--watch` or `-w` flag to a command, like so:
+
+```bash
+kubectl get pods --watch
+```
+
+This command will start streaming updates about pods as they are created, modified, or deleted.
+
+In client code, you can use the watch functionality provided by Kubernetes client libraries. For example, in Python using the official Kubernetes client, you would use the `watch` module:
+
+```python
+from kubernetes import client, config, watch
+
+config.load_kube_config()
+v1 = client.CoreV1Api()
+w = watch.Watch()
+for event in w.stream(v1.list_pod_for_all_namespaces):
+    print(f"Event: {event['type']} Pod: {event['object'].metadata.name}")
+```
+
+This code will print out a line every time there is an event related to any pod in any namespace.
+
+The watch action is a powerful feature that enables dynamic and responsive applications within the Kubernetes ecosystem¹.
+
+Source: Conversation with Bing, 23/05/2024
+(1) K8s ASA: Watching and Caching · Daniel Mangum. https://danielmangum.com/posts/k8s-asa-watching-and-caching/.
+(2) Top 10 Must-Have Alerts for Kubernetes - Sematext. https://sematext.com/blog/top-10-must-have-alerts-for-kubernetes/.
+(3) Kubernetes RBAC Permissions You Might Not Know About, but Should. https://thenewstack.io/kubernetes-rbac-permissions-you-might-not-know-about-but-should/.
+(4) undefined. https://127.0.0.1:2379.

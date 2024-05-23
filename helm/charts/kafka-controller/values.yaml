@@ -12,7 +12,8 @@ environment:
   # KAFKA_JMX_PORT: 9101 - Will apply later
   # KAFKA_JMX_HOSTNAME: localhost - Will apply later
   KAFKA_PROCESS_ROLES: controller
-  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "2"
+  #KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "2"
+  
   # KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-kraft:29093 - Should be dynamically allocated with a script
   # KAFKA_LISTENERS: PLAINTEXT://kafka-kraft:29092,CONTROLLER://kafka-kraft:29093,PLAINTEXT_HOST://0.0.0.0:9092 - Should be dynamically allocated with script
   KAFKA_INTER_BROKER_LISTENER_NAME: CONTROLLER
@@ -20,14 +21,17 @@ environment:
   CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
   KAFKA_HEAP_OPTIONS: -Xms1024M -Xmx1024M
   KAFKA_LOG_DIRS: /opt/kafka/data/logs
+  
   KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
-  KAFKA_DEFAULT_REPLICATION_FACTOR: "2"
-  KAFKA_LOG_RETENTION_HOURS: "2"
+  #KAFKA_DEFAULT_REPLICATION_FACTOR: "2"
+  
+  #KAFKA_LOG_RETENTION_HOURS: "2"
+  
   # KAFKA_LOG_RETENTION_MINUTES: 20
   KAFKA_CLEANUP_POLICY: delete
-  KAFKA_MESSAGE_MAX_BYTES: "10485760"
-  KAFKA_REPLICA_FETCH_MAX_BYTES: "10485760"
-  KAFKA_MIN_INSYNC_REPLICAS: "2"
+  #KAFKA_MESSAGE_MAX_BYTES: "10485760"
+  #KAFKA_REPLICA_FETCH_MAX_BYTES: "10485760"
+  #KAFKA_MIN_INSYNC_REPLICAS: "2"
   KAFKA_NUM_PARTITIONS: "4"
 
 refEnvironment:
@@ -80,7 +84,7 @@ securityContext:
   capabilities:
     drop:
     - ALL
-  #readOnlyRootFilesystem: false
+  # readOnlyRootFilesystem: false
   runAsNonRoot: true
   runAsUser: 1000
   runAsGroup: 1000
@@ -159,7 +163,7 @@ volumeMounts:
     mountPath: /opt/kafka/data
 #   readOnly: true
 
-volumeClaimTemplates:
+volumeClaimTemplates: 
 - metadata:
     name: datadir
   spec:

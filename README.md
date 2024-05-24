@@ -342,3 +342,75 @@ Source: Conversation with Bing, 23/05/2024
 (2) Top 10 Must-Have Alerts for Kubernetes - Sematext. https://sematext.com/blog/top-10-must-have-alerts-for-kubernetes/.
 (3) Kubernetes RBAC Permissions You Might Not Know About, but Should. https://thenewstack.io/kubernetes-rbac-permissions-you-might-not-know-about-but-should/.
 (4) undefined. https://127.0.0.1:2379.
+
+## Copilot enable ingress on Minikube
+To configure an Ingress on Minikube, you can follow these steps:
+
+1. **Start your Minikube cluster** (if it's not already running):
+   ```shell
+   minikube start
+   ```
+
+2. **Enable the NGINX Ingress controller** in Minikube:
+   ```shell
+   minikube addons enable ingress
+   ```
+
+3. **Verify that the NGINX Ingress controller is running**:
+   ```shell
+   kubectl get pods -n ingress-nginx
+   ```
+   It may take a minute for the pods to start running.
+
+4. **Deploy a sample application** (e.g., a hello-world app):
+   ```shell
+   kubectl create deployment web --image=gcr.io/google-samples/hello-app:1.0
+   ```
+
+5. **Expose the Deployment** as a Service:
+   ```shell
+   kubectl expose deployment web --type=NodePort --port=8080
+   ```
+
+6. **Create an Ingress resource** that defines how external HTTP traffic should be routed to the services. Here's an example of an Ingress resource YAML file:
+   ```yaml
+   apiVersion: networking.k8s.io/v1
+   kind: Ingress
+   metadata:
+     name: example-ingress
+     annotations:
+       nginx.ingress.kubernetes.io/rewrite-target: /
+   spec:
+     rules:
+     - http:
+         paths:
+         - path: /web
+           pathType: Prefix
+           backend:
+             service:
+               name: web
+               port:
+                 number: 8080
+   ```
+
+7. **Apply the Ingress resource** to your cluster:
+   ```shell
+   kubectl apply -f your-ingress.yaml
+   ```
+
+8. **Test your Ingress** by accessing the Minikube service URL:
+   ```shell
+   minikube service web
+   ```
+
+This will set up a basic Ingress which routes requests to your `web` service based on the HTTP URI¹. Remember to replace `your-ingress.yaml` with the path to your actual Ingress resource file. Also, ensure that your application is designed to respond at the specified paths.
+
+For a more detailed guide or if you're using a different Ingress controller, you might want to refer to the official Kubernetes documentation or other reliable sources¹²³.
+
+Source: Conversation with Bing, 23/05/2024
+(1) Set up Ingress on Minikube with the NGINX Ingress Controller. https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/.
+(2) Setting up Ingress on Minikube - Medium. https://medium.com/@Oskarr3/setting-up-ingress-on-minikube-6ae825e98f82.
+(3) How to Set Up Ingress In Minikube in 2024? - elvanco.com. https://elvanco.com/blog/how-to-set-up-ingress-in-minikube.
+(4) Set up Ingress on Minikube with the NGINX Ingress Controller. https://k8s-docs.netlify.app/en/docs/tasks/access-application-cluster/ingress-minikube/.
+(5) undefined. http://www.sandtable.com/a-single-aws-elastic-load-balancer-for-several-kubernetes-services-using-kubernetes-ingress/.
+(6) undefined. https://gist.github.com/0sc/77d8925cc378c9a6a92890e7c08937ca.
